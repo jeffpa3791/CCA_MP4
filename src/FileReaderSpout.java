@@ -35,7 +35,8 @@ public class FileReaderSpout implements IRichSpout {
     */
     
     String file_name;
-    file_name = context.get(args[0]).toString();
+    // file_name = context.get(args[0]).toString();
+    file_name = conf.get("input_file_name").toString();
 
 		try {
 			this._fileReader = new FileReader(file_name);
@@ -70,8 +71,9 @@ public class FileReaderSpout implements IRichSpout {
 		this._bufferedReader = new BufferedReader(this._fileReader);
 		try{
 			//Read all lines
-			while((str = _bufferedReader.readLine()) != null){
-				this._collector.emit(new Values(str));
+			String fileLine;
+			while((fileLine = _bufferedReader.readLine()) != null){
+				this._collector.emit(new Values(fileLine));
 			}
 		}catch(Exception e){
 			throw new RuntimeException("Error reading tuple",e);
