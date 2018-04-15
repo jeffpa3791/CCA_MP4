@@ -16,6 +16,10 @@ import org.apache.storm.tuple.Values;
 public class FileReaderSpout implements IRichSpout {
   private SpoutOutputCollector _collector;
   private TopologyContext context;
+  /* added variables */
+  private FileReader _fileReader;
+  private BufferedReader _bufferedReader;
+  private boolean _fileComplete = false;
 
 
   @Override
@@ -25,10 +29,19 @@ public class FileReaderSpout implements IRichSpout {
      /*
     ----------------------TODO-----------------------
     Task: initialize the file reader
-
-
     ------------------------------------------------- */
+    /* implementation:
+       accept file name as args[0] and open it
+    */
+    String file_name;
+    file_name = args[0];
 
+		try {
+			this._fileReader = new FileReader(conf.get(file_name).toString());
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Error reading file ["+file_name+"]");
+		}
+		
     this.context = context;
     this._collector = collector;
   }
@@ -41,8 +54,29 @@ public class FileReaderSpout implements IRichSpout {
     Task:
     1. read the next line and emit a tuple for it
     2. don't forget to sleep when the file is entirely read to prevent a busy-loop
-
     ------------------------------------------------- */
+    // check if file is complete, sleep for 1 second and then return 
+    if (this._fileComplete) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//Do nothing
+			}
+			return;
+    }
+    
+    // Open the reader
+		this._bufferedReader = new BufferedReader(this._fileReader);
+		try{
+			//Read all lines
+			while((str = _bufferedReader.readLine()) != null){
+				this._collector.emit(new Values(str));
+			}
+		}catch(Exception e){
+			throw new RuntimeException("Error reading tuple",e);
+		}finally{
+			this._fileComplete = true;
+		}
 
 
   }
@@ -59,10 +93,8 @@ public class FileReaderSpout implements IRichSpout {
    /*
     ----------------------TODO-----------------------
     Task: close the file
-
-
     ------------------------------------------------- */
-
+    this._bufferedReader.close();
   }
 
 
