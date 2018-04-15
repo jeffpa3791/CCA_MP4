@@ -33,11 +33,12 @@ public class FileReaderSpout implements IRichSpout {
     /* implementation:
        accept file name as args[0] and open it
     */
+    
     String file_name;
-    file_name = args[0];
+    file_name = context.get(args[0]).toString();
 
 		try {
-			this._fileReader = new FileReader(conf.get(file_name).toString());
+			this._fileReader = new FileReader(file_name);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Error reading file ["+file_name+"]");
 		}
