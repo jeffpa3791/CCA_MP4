@@ -40,10 +40,11 @@ public class TopWordFinderTopologyPartB {
     builder.setSpout("spout", new FileReaderSpout(), 1);
     builder.setBolt("split", new SplitSentenceBolt(), 8).shuffleGrouping("spout");
     builder.setBolt("count", new WordCountBolt(), 12).fieldsGrouping("split", new Fields("word"));
+    /* put file name into config for use by spout */
+    config.put("input_file_name",args[0]);
 
-    config.setMaxTaskParallelism(3);
-    config.put('input_file_name',args[0])
 
+    config.setMaxTaskParallelism(3);    
     LocalCluster cluster = new LocalCluster();
     cluster.submitTopology("word-count", config, builder.createTopology());
 

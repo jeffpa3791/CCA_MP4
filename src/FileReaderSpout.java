@@ -96,8 +96,13 @@ public class FileReaderSpout implements IRichSpout {
    /*
     ----------------------TODO-----------------------
     Task: close the file
-    ------------------------------------------------- */
-    this._bufferedReader.close();
+    ------------------------------------------------- */		
+    try{
+      this._bufferedReader.close();
+		}catch(java.io.IOException e){
+			throw (e);
+		}
+    
   }
 
 
