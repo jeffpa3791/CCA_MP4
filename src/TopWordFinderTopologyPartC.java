@@ -36,10 +36,16 @@ public class TopWordFinderTopologyPartC {
     SplitSentenceBolt -> "split"
     WordCountBolt -> "count"
     NormalizerBolt -> "normalize"
-
-
-
     ------------------------------------------------- */
+
+    /* implementation -- copied from tutorial , update Spout and set to 1 instance */
+    builder.setSpout("spout", new FileReaderSpout(), 1);
+    builder.setBolt("split", new SplitSentenceBolt(), 8).shuffleGrouping("spout");
+    builder.setBolt("normalize", new NormalizerBolt(), 8).shuffleGrouping("split");
+    builder.setBolt("count", new WordCountBolt(), 12).fieldsGrouping("normalize", new Fields("word"));
+    /* put file name into config for use by spout */
+    config.put("input_file_name",args[0]);
+
 
 
     config.setMaxTaskParallelism(3);
