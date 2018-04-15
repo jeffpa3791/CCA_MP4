@@ -7,6 +7,7 @@ import org.apache.storm.tuple.Values;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -47,12 +48,12 @@ public class TopNFinderBolt extends BaseBasicBolt {
         //sort the list
         Collections.sort(countList);
         //new threshold is the Nth entry
-        topNthreshold = countList[N];
+        topNthreshold = countList.get(N);
         //any item on currentTopWords with count < threhsold should be removed
         //   in case of ties, this may retain more than N elements. 
         for (String keyword : currentTopWords.keySet()) {
           if (currentTopWords.get(keyword) < topNthreshold) {
-            System.err.println("DEBUG: threshold is " + topNthreshold.toString() + 
+            System.err.println("DEBUG: threshold is " + topNthreshold + 
                ", removing word " + keyword + " with count " + currentTopWords.get(keyword));
             currentTopWords.remove(keyword);
             System.err.println("DEBUG: size is now " + currentTopWords.size());
