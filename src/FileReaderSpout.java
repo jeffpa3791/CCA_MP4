@@ -92,15 +92,16 @@ public class FileReaderSpout implements IRichSpout {
   }
 
   @Override
-  public void close() {
+  public void close() throws java.io.IOException e {
    /*
     ----------------------TODO-----------------------
     Task: close the file
     ------------------------------------------------- */		
     try{
       this._bufferedReader.close();
-		}catch(java.io.IOException e){
-			throw (e);
+    } 
+    catch(java.io.IOException e) { 
+      throw (e);
 		}
     
   }
