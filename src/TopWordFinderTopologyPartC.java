@@ -38,7 +38,7 @@ public class TopWordFinderTopologyPartC {
     NormalizerBolt -> "normalize"
     ------------------------------------------------- */
 
-    /* implementation -- copied from tutorial , update Spout and set to 1 instance */
+    /* implementation -- copied from part B, insert Normalizer between split and count */
     builder.setSpout("spout", new FileReaderSpout(), 1);
     builder.setBolt("split", new SplitSentenceBolt(), 8).shuffleGrouping("spout");
     builder.setBolt("normalize", new NormalizerBolt(), 8).shuffleGrouping("split");

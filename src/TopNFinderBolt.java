@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class TopNFinderBolt extends BaseBasicBolt {
   private HashMap<String, Integer> currentTopWords = new HashMap<String, Integer>();
   private int N;
+  private int topNthreshold = 0;
 
   private long intervalToReport = 20;
   private long lastReportTime = System.currentTimeMillis();
@@ -26,10 +27,36 @@ public class TopNFinderBolt extends BaseBasicBolt {
  /*
     ----------------------TODO-----------------------
     Task: keep track of the top N words
-
-
     ------------------------------------------------- */
-
+    String word = tuple.getString(0);
+    Integer count = tuple.getInteger(1);
+    
+    // keep track of the top-N-threshold = the lowest count for the top N words on the Hashmap
+    // if a word comes in with a count >= threshold, it might be qualified for inclusion in the top, so take action:  
+    //   put() will insert or update the entry
+    //   if we now have more than N items, trim it to the top N and update the threshold
+    
+    if (count >= topNthreshold) {
+      currentTopWords.put(word,count);
+      if (currentTopWords.size() > N) {
+        // put the counts on a list
+        List<Integer> countList = currentTopWords.values();
+        //sort the list
+        Collections.sort(countList);
+        //new threshold is the Nth entry
+        topNthreshold = countList[N];
+        //any item on currentTopWords with count < threhsold should be removed
+        //   in case of ties, this may retain more than N elements. 
+        for (String word : currentTopWords.keySet()) {
+          if (currentTopWords.get(word) < topNthreshold) {
+            System.err.println("DEBUG: threshold is " + topNthreshold.toString() + 
+               ", removing word " + word + " with count " + currentTopWords.get(word).toString());
+            currentTopWords.remove(word);
+            System.err.println("DEBUG: size is now " + currentTopWords.size());
+          } // end of if (currentTopWords.get(word) < topNthreshold)
+        } // end of for (String word : currentTopWords.keySet())
+      }  // end of if (currentTopWords.size() > N) 
+    }  // end of if (count >= topNthreshold) 
 
     //reports the top N words periodically
     if (System.currentTimeMillis() - lastReportTime >= intervalToReport) {
@@ -40,9 +67,7 @@ public class TopNFinderBolt extends BaseBasicBolt {
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-
      declarer.declare(new Fields("top-N"));
-
   }
 
   public String printMap() {
