@@ -6,6 +6,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Collections;
 
 /**
@@ -41,7 +42,8 @@ public class TopNFinderBolt extends BaseBasicBolt {
       currentTopWords.put(word,count);
       if (currentTopWords.size() > N) {
         // put the counts on a list
-        List<Integer> countList = currentTopWords.values();
+        List<Integer> countList = new ArrayList<Integer>();
+        countList.addAll(currentTopWords.values());
         //sort the list
         Collections.sort(countList);
         //new threshold is the Nth entry
@@ -51,9 +53,9 @@ public class TopNFinderBolt extends BaseBasicBolt {
         for (String keyword : currentTopWords.keySet()) {
           if (currentTopWords.get(keyword) < topNthreshold) {
             System.err.println("DEBUG: threshold is " + topNthreshold.toString() + 
-               ", removing word " + keyword + " with count " + currentTopWords.get(keyword).toString());
+               ", removing word " + keyword + " with count " + currentTopWords.get(keyword));
             currentTopWords.remove(keyword);
-            System.err.println("DEBUG: size is now " + currentTopWords.size().toString());
+            System.err.println("DEBUG: size is now " + currentTopWords.size());
           } // end of if (currentTopWords.get(word) < topNthreshold)
         } // end of for (String word : currentTopWords.keySet())
       }  // end of if (currentTopWords.size() > N) 
