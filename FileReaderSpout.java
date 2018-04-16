@@ -33,11 +33,13 @@ public class FileReaderSpout implements IRichSpout {
     /* implementation:
        accept file name as args[0] and open it
     */
+    
     String file_name;
-    file_name = args[0];
+    // file_name = context.get(args[0]).toString();
+    file_name = conf.get("input_file_name").toString();
 
 		try {
-			this._fileReader = new FileReader(conf.get(file_name).toString());
+			this._fileReader = new FileReader(file_name);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Error reading file ["+file_name+"]");
 		}
@@ -69,8 +71,10 @@ public class FileReaderSpout implements IRichSpout {
 		this._bufferedReader = new BufferedReader(this._fileReader);
 		try{
 			//Read all lines
-			while((str = _bufferedReader.readLine()) != null){
-				this._collector.emit(new Values(str));
+			String fileLine;
+			while((fileLine = _bufferedReader.readLine()) != null){
+			 // System.err.writeln("FileReaderDEBUG have line" + fileLine);
+				this._collector.emit(new Values(fileLine));
 			}
 		}catch(Exception e){
 			throw new RuntimeException("Error reading tuple",e);
@@ -89,12 +93,18 @@ public class FileReaderSpout implements IRichSpout {
   }
 
   @Override
-  public void close() {
+  public void close()  {
    /*
     ----------------------TODO-----------------------
     Task: close the file
-    ------------------------------------------------- */
-    this._bufferedReader.close();
+    ------------------------------------------------- */		
+    try{
+      this._bufferedReader.close();
+    } 
+    catch(java.io.IOException e) { 
+      System.err.println("closing file triggered IOException: " + e.getMessage());
+		}
+    
   }
 
 
