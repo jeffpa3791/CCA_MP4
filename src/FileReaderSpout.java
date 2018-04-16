@@ -73,6 +73,7 @@ public class FileReaderSpout implements IRichSpout {
 			//Read all lines
 			String fileLine;
 			while((fileLine = _bufferedReader.readLine()) != null){
+			  System.err.writeln("FileReaderDEBUG have line" + fileLine);
 				this._collector.emit(new Values(fileLine));
 			}
 		}catch(Exception e){
