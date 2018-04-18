@@ -41,6 +41,8 @@ public class TopNFinderBolt extends BaseBasicBolt {
     
     if (count >= topNthreshold) {
       currentTopWords.put(word,count);
+      System.err.println("TopNFinderDEBUG: currentTopWords.size is " + currentTopWords.size() 
+                         + ", N = " + N);
       if (currentTopWords.size() > N) {
         // put the counts on a list
         List<Integer> countList = new ArrayList<Integer>();
