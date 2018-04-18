@@ -16,7 +16,7 @@ public class NormalizerBolt extends BaseBasicBolt {
       "of", "to", "in", "am", "is", "are", "at", "not", "that", "have", "i", "it",
       "for", "on", "with", "he", "she", "as", "you", "do", "this", "but", "his",
       "by", "from", "they", "we", "her", "or", "will", "my", "one", "all", "s", "if",
-      "any", "our", "may", "your", "these", "d" , " ", "me" , "so" , "what" , "him" );
+      "any", "our", "may", "your", "these", "d" , " ", "me" , "so" , "what" , "him" , "");
 
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
@@ -29,7 +29,6 @@ public class NormalizerBolt extends BaseBasicBolt {
       
     String word = tuple.getString(0).toLowerCase();
     if (! commonWords.contains(word)) {
-      System.err.println("Normalizer DEBUG:  emitting " + word);
       collector.emit(new Values(word));
     }
 

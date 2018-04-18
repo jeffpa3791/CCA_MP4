@@ -20,7 +20,7 @@ public class WordCountBolt extends BaseBasicBolt {
       count = 0;
     count++;
     counts.put(word, count);
-    System.err.println("WordCountBoltDEBUG emitting " + word + " " + count);
+    // System.err.println("WordCountBoltDEBUG emitting " + word + " " + count);
     collector.emit(new Values(word, count));
   }
 

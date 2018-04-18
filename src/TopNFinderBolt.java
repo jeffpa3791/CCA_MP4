@@ -7,6 +7,7 @@ import org.apache.storm.tuple.Values;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -35,30 +36,34 @@ public class TopNFinderBolt extends BaseBasicBolt {
     Integer count = tuple.getInteger(1);
     
     // keep track of the top-N-threshold = the lowest count for the top N words on the Hashmap
-    // if a word comes in with a count >= threshold, it might be qualified for inclusion in the top, so take action:  
+    // if a word comes in with a count > threshold, it might bump an entry off the list
     //   put() will insert or update the entry
     //   if we now have more than N items, trim it to the top N and update the threshold
     
-    if (count >= topNthreshold) {
+    if (count > topNthreshold) {
       currentTopWords.put(word,count);
-      System.err.println("TopNFinderDEBUG: currentTopWords.size is " + currentTopWords.size() 
-                         + ", N = " + N);
+      //System.err.println("TopNFinderDEBUG: currentTopWords.size is " + currentTopWords.size() 
+      //                   + ", N = " + N);
       if (currentTopWords.size() > N) {
+        ///System.err.println("DEBUG: in the loop");
         // put the counts on a list
         List<Integer> countList = new ArrayList<Integer>();
         countList.addAll(currentTopWords.values());
+        //System.err.println("DEBUG: countList = " + countList);
         //sort the list
-        Collections.sort(countList);
-        //new threshold is the Nth entry
+        Collections.sort(countList,Collections.reverseOrder());
+        //new threshold is the count from the N+1 entry
+        //   since Java arrays start at index 0, index [N] = N+1th
         topNthreshold = countList.get(N);
-        //any item on currentTopWords with count < threhsold should be removed
-        //   in case of ties, this may retain more than N elements. 
-        for (String keyword : currentTopWords.keySet()) {
-          if (currentTopWords.get(keyword) < topNthreshold) {
-            System.err.println("DEBUG: threshold is " + topNthreshold + 
-               ", removing word " + keyword + " with count " + currentTopWords.get(keyword));
+        // first entry wth this count can be deleted from the list
+        Set<String> Wordset = currentTopWords.keySet();
+        for (String keyword : Wordset) {
+          if (currentTopWords.get(keyword) <= topNthreshold) {
+            //System.err.println("DEBUG: threshold is " + topNthreshold + 
+            //   ", removing word " + keyword + " with count " + currentTopWords.get(keyword));
             currentTopWords.remove(keyword);
-            System.err.println("DEBUG: size is now " + currentTopWords.size());
+            //System.err.println("DEBUG: size is now " + currentTopWords.size());
+            break;
           } // end of if (currentTopWords.get(word) < topNthreshold)
         } // end of for (String word : currentTopWords.keySet())
       }  // end of if (currentTopWords.size() > N) 
